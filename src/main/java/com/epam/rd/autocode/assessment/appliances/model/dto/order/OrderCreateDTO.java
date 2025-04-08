@@ -3,6 +3,8 @@ package com.epam.rd.autocode.assessment.appliances.model.dto.order;
 import jakarta.validation.Valid;
 import lombok.Data;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -13,5 +15,17 @@ public class OrderCreateDTO {
      * collection and apply its own validation annotations to it.
      */
     @Valid
-    private Set<OrderRowCreateDTO> orderRowSet;
+    private List<OrderRowCreateDTO> orderRowSet;
+
+    // todo add constraint
+    private BigDecimal calculatedOnFrontTotal;
+
+
+    @Override
+    public String toString() {
+        return "OrderCreateDTO{" +
+                "orderRowSet=" + orderRowSet +
+                ", calculatedOnFrontTotal=" + calculatedOnFrontTotal +
+                '}';
+    }
 }

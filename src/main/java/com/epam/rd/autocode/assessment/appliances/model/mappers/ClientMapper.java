@@ -4,9 +4,7 @@ import com.epam.rd.autocode.assessment.appliances.model.dto.client.ClientCreateD
 import com.epam.rd.autocode.assessment.appliances.model.dto.client.ClientEditDTO;
 import com.epam.rd.autocode.assessment.appliances.model.dto.client.ClientResponseDTO;
 import com.epam.rd.autocode.assessment.appliances.model.self.Client;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -15,7 +13,10 @@ public interface ClientMapper {
 
     ClientResponseDTO toResponseDTO(Client client);
     ClientEditDTO toEditDTO(Client client);
-    Client toEntity(ClientResponseDTO clientDTO);
+    Client toEntity(ClientResponseDTO dto);
+
+    @Mapping(target = "password", ignore = true)
+    Client toEntity(ClientCreateDTO dto);
 
     void updateClientFromDTO(ClientEditDTO clientEditDTO, @MappingTarget Client client);
     void updateClientFromDTO(ClientCreateDTO clientEditDTO, @MappingTarget Client client);

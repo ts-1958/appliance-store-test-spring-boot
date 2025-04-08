@@ -2,11 +2,11 @@ package com.epam.rd.autocode.assessment.appliances.model.self;
 
 import com.epam.rd.autocode.assessment.appliances.model.enums.Role;
 import com.epam.rd.autocode.assessment.appliances.model.enums.UserStatus;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +19,9 @@ public class Employee extends User {
     private String department;
     private LocalDateTime temporaryPasswordExpiryTime;
     private String setupPasswordToken;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.REMOVE)

@@ -11,6 +11,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApplianceEditDTO {
+
+    Long id;
+
     @NotBlank(message = "{validation.name.notBlank}")
     @Size(max = 30, message = "{validation.name.size}")
     private String name;

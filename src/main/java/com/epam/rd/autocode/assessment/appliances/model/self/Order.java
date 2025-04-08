@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -15,32 +16,39 @@ import java.util.Set;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 
 @Entity
+@Table(name = "orders")
 public class Order {
 
     @Id
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Boolean approved;
     @ManyToOne
     private Client client;
     @ManyToOne
     private Employee employee;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<OrderRow> orderRowSet;
+    private List<OrderRow> orderRowSet;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    public static Order of(final Client client){
+        Order order = new Order();
+        order.setClient(client);
+        order.setStatus(OrderStatus.PENDING);
+        return order;
+    }
 
     @Override
     public String toString() {
         return "Orders{" +
                 "id=" + id +
-                ", approved=" + approved +
                 ", client=" + client.getName() +
                 ", employee=" + employee.getName() +
                 ", orderRowCount=" + orderRowSet.size() +
+                ", status=" + status +
                 '}';
     }
 }

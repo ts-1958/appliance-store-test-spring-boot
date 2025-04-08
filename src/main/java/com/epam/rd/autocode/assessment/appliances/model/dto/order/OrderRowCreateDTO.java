@@ -11,10 +11,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderRowCreateDTO {
+
     @NotNull(message = "{validation.appliance-id.required}")
     private Long applianceId;
     @NotNull(message = "{validation.appliance.number.required}")
     private Long number;
-    private BigDecimal amount; // money
 }
 

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -16,7 +17,7 @@ public class OrderResponseDTO {
     private boolean approved;
     private Client client;
     private Employee employee;
-    private Set<OrderRowResponseDTO> orderRowSet;
+    private List<OrderRowResponseDTO> orderRowSet;
     private OrderStatus status;
 
     public BigDecimal getTotal(){

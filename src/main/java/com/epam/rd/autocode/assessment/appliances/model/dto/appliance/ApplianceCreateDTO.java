@@ -13,6 +13,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApplianceCreateDTO {
+
+    // todo constraint
+    Long id;
+
     @NotBlank(message = "{validation.name.notBlank}")
     @Size(max = 30, message = "{validation.name.size}")
     private String name;
@@ -30,7 +34,7 @@ public class ApplianceCreateDTO {
     @NotNull(message = "{validation.power-type.not.selected}")
     private PowerType powerType;
 
-    @NotNull(message = "{validation.characteristic.not.selected}")
+    @NotBlank(message = "{validation.characteristic.not.selected}")
     private String characteristic;
     private String description;
 

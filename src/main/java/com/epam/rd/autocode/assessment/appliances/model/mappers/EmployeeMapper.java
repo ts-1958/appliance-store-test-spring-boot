@@ -13,6 +13,7 @@ public interface EmployeeMapper {
     EmployeeMapper INSTANCE = Mappers.getMapper(EmployeeMapper.class);
 
     EmployeeResponseDTO toResponseDTO(Employee employee);
+    EmployeeEditDTO toEditDTO(Employee employee);
 
     Employee toEntity(EmployeeResponseDTO dto);
     Employee toEntity(EmployeeCreateDTO dto);

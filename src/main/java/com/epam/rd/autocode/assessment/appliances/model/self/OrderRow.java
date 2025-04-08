@@ -1,6 +1,7 @@
 package com.epam.rd.autocode.assessment.appliances.model.self;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +16,6 @@ import java.math.BigDecimal;
 
 @Entity
 public class OrderRow {
-    @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,11 +23,17 @@ public class OrderRow {
     private Appliance appliance;
 
     private Long number;
-    private BigDecimal amount;
 
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
+
+    public static OrderRow of(Appliance appliance, Long number) {
+        OrderRow orderRow = new OrderRow();
+        orderRow.appliance = appliance;
+        orderRow.number = number;
+        return orderRow;
+    }
 
     @Override
     public String toString() {
@@ -35,7 +41,6 @@ public class OrderRow {
                 "id=" + id +
                 ", appliance=" + appliance.getName() +
                 ", number=" + number +
-                ", amount=" + amount +
                 ", order=" + order.getId() +
                 '}';
     }
