@@ -4,6 +4,7 @@ import com.epam.rd.autocode.assessment.appliances.exceptions.expected.EntityExis
 import com.epam.rd.autocode.assessment.appliances.model.dto.LoginUserDTO;
 import com.epam.rd.autocode.assessment.appliances.model.dto.client.ClientCreateDTO;
 import com.epam.rd.autocode.assessment.appliances.model.dto.client.ClientResponseDTO;
+import com.epam.rd.autocode.assessment.appliances.model.enums.UserStatus;
 import com.epam.rd.autocode.assessment.appliances.model.self.Employee;
 import com.epam.rd.autocode.assessment.appliances.model.self.User;
 import com.epam.rd.autocode.assessment.appliances.repository.EmployeeRepository;
@@ -93,6 +94,7 @@ public class AuthServiceImpl implements AuthService {
         employee.setPassword(encoder.encode(newPassword));
         employee.setSetupPasswordToken(null);
         employee.setTemporaryPasswordExpiryTime(LocalDateTime.now());
+        employee.setStatus(UserStatus.ACTIVE);
         employeeRepo.save(employee);
         log.info("Password updated for user {}", employee.getId());
         return getCookie(employee.getId().toString(), employee.getRole().name());

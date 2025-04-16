@@ -11,7 +11,7 @@
 <div class="container-sm">
   <h2 class="mb-4" th:text="#{general.title.client-info}"></h2>
 
-  <form th:action="@{/cabinet}" th:object="${clientEdit}" method="post">
+  <form th:action="@{/cabinet}" th:object="${editDTO}" method="post">
     <input type="hidden" name="_method" value="put">
 
     <div class="mb-3">

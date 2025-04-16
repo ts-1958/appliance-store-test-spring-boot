@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginUserDTO {
 
-    @NotBlank(message = "{validation.email.invalid}")
-    @Email(message = "{validation.email.invalid}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
+    @Email(message = "{validation.can.not.be-blank}")
     private String email;
 
-    @NotBlank(message = "{validation.password.invalid}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
     private String password;
 }

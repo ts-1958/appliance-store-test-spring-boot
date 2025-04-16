@@ -9,7 +9,7 @@
 <div th:insert="~{menunavy::futher-nav(isEmployee=${true})}"></div>
 
 <div class="container-fluid py-4">
-    <h2 class="mb-4" th:text="${employeeResponse.name}" ></h2>
+    <h2 class="mb-4" th:text="${responseDTO.name}" ></h2>
 
     <div class="row">
         <!-- Employee info -->
@@ -17,22 +17,22 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between">
                     <span>Information</span>
-                    <a th:unless="${for_admin}" th:href="@{/internal/cabinet/edit}" class="btn btn-sm btn-outline-primary">
+                    <a th:unless="${forAdmin}" th:href="@{/internal/cabinet/edit}" class="btn btn-sm btn-outline-primary">
                         Edit
                     </a>
-                    <a th:if="${for_admin}" th:href="@{/internal/employees/{id}/edit(id=${employeeResponse.id})}" class="btn btn-sm btn-outline-primary">
+                    <a th:if="${forAdmin}" th:href="@{/internal/employees/{id}/edit(id=${responseDTO.id})}" class="btn btn-sm btn-outline-primary">
                         Edit
                     </a>
                 </div>
                 <div class="card-body">
-                    <p><strong>Name:</strong> <span th:text="${employeeResponse.name}"></span></p>
-                    <p><strong>Email:</strong> <span th:text="${employeeResponse.email}"></span></p>
-                    <p><strong>Department:</strong> <span th:text="${employeeResponse.department}"></span></p>
-                    <p><strong>Position:</strong> <span th:text="${employeeResponse.role}"></span></p>
-                    <p><strong>Status:</strong> <span th:text="${employeeResponse.status}"></span></p>
+                    <p><strong>Name:</strong> <span th:text="${responseDTO.name}"></span></p>
+                    <p><strong>Email:</strong> <span th:text="${responseDTO.email}"></span></p>
+                    <p><strong>Department:</strong> <span th:text="${responseDTO.department}"></span></p>
+                    <p><strong>Position:</strong> <span th:text="${responseDTO.role}"></span></p>
+                    <p><strong>Status:</strong> <span th:text="${responseDTO.status}"></span></p>
                 </div>
-                <div th:if="${for_admin}" class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
-                    <a th:href="@{/internal/employees/{id}/delete(id=${employeeResponse.id})}"
+                <div th:if="${forAdmin}" class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
+                    <a th:href="@{/internal/employees/{id}/delete(id=${responseDTO.id})}"
                        class="btn btn-outline-danger">
                         <i class="bi bi-person"></i> <span th:text="#{general.btn.delete}" ></span>
                     </a>
@@ -44,9 +44,9 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header d-flex justify-content-between">
-                    <h2 th:unless="${for_admin}" class="h5 mb-0" th:text="#{orders.approved-by-me}" ></h2>
-                    <h2 th:if="${for_admin}" class="h5 mb-0" th:text="#{orders.approved-by}" ></h2>
-                    <span class="badge bg-light text-dark" th:text=" #{orders.total} + ': ' + ${ordersList.size()}">Total: 0</span>
+                    <h2 th:unless="${forAdmin}" class="h5 mb-0" th:text="#{orders.approved-by-me}" ></h2>
+                    <h2 th:if="${forAdmin}" class="h5 mb-0" th:text="#{orders.approved-by}" ></h2>
+                    <span class="badge bg-light text-dark" th:text=" #{orders.total} + ': ' + ${orders.size()}">Total: 0</span>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -62,10 +62,10 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:if="${ordersList.isEmpty()}">
+                            <tr th:if="${orders.isEmpty()}">
                                 <td colspan="3" class="text-center text-muted py-4" th:text="#{orders.no-found}" ></td>
                             </tr>
-                            <tr th:each="ord : ${ordersList}">
+                            <tr th:each="ord : ${orders}">
                                 <td th:text="'#' + ${ord.id}"></td>
                                 <td>
                                     <div th:each="row : ${ord.orderRowSet}">

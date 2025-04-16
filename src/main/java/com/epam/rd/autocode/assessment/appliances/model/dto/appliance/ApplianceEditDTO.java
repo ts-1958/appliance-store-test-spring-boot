@@ -12,18 +12,16 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ApplianceEditDTO {
 
-    Long id;
-
-    @NotBlank(message = "{validation.name.notBlank}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
     @Size(max = 30, message = "{validation.name.size}")
     private String name;
 
-    @NotNull(message = "{validation.characteristic.not.selected}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
     private String characteristic;
 
     private String description;
 
-    @NotNull(message = "{validation.price.not.selected}")
+    @NotNull(message = "{validation.can.not.be-blank}")
     @DecimalMin(value = "0.00", message = "{validation.price.can-not-be.negative}")
     private BigDecimal price;
 

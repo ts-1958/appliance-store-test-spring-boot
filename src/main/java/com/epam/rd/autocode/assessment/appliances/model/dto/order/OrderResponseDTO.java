@@ -14,22 +14,20 @@ import java.util.Set;
 @NoArgsConstructor
 public class OrderResponseDTO {
     private Long id;
-    private boolean approved;
     private Client client;
     private Employee employee;
     private List<OrderRowResponseDTO> orderRowSet;
     private OrderStatus status;
 
+    private BigDecimal priceAtPurchase;
+
     public BigDecimal getTotal(){
-        return orderRowSet.stream()
-                .map(OrderRowResponseDTO::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return priceAtPurchase;
     }
 
     public String toString() {
         return "OrdersDTO{" +
                 "id=" + id +
-                ", approved=" + approved +
                 ", client=" + ((client==null) ? "n/a" : client.getName()) +
                 ", employee=" + ((employee==null) ? "n/a" : employee.getName()) +
                 ", orderRowSet=" + orderRowSet +

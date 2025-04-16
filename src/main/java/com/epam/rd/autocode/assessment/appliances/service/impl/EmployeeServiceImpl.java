@@ -7,6 +7,7 @@ import com.epam.rd.autocode.assessment.appliances.model.dto.client.ClientEditDTO
 import com.epam.rd.autocode.assessment.appliances.model.dto.employee.EmployeeCreateDTO;
 import com.epam.rd.autocode.assessment.appliances.model.dto.employee.EmployeeEditDTO;
 import com.epam.rd.autocode.assessment.appliances.model.dto.employee.EmployeeResponseDTO;
+import com.epam.rd.autocode.assessment.appliances.model.enums.UserStatus;
 import com.epam.rd.autocode.assessment.appliances.model.mappers.EmployeeMapper;
 import com.epam.rd.autocode.assessment.appliances.model.self.Employee;
 import com.epam.rd.autocode.assessment.appliances.model.self.User;
@@ -74,7 +75,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<EmployeeResponseDTO> findAll(int page, int size, String sort, boolean asc) {
         Sort criteria = (asc) ? Sort.by(sort) : Sort.by(sort).descending();
         Pageable pageable = PageRequest.of(page, size, criteria);
-        List<Employee> clients = repo.findAll(pageable).getContent();
+        List<Employee> clients = repo.findAll(pageable).getContent().stream()
+                .filter(employee -> employee.getStatus() != UserStatus.DELETED).toList();;
         return clients.stream().map(mapper::toResponseDTO).collect(Collectors.toList());
 
     }
@@ -82,7 +84,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeResponseDTO> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<Employee> clients = repo.findAll(pageable).getContent();
+        List<Employee> clients = repo.findAll(pageable)
+                .getContent().stream()
+                .filter(employee -> employee.getStatus() != UserStatus.DELETED).toList();
         return clients.stream().map(mapper::toResponseDTO).collect(Collectors.toList());
     }
 
@@ -108,13 +112,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         log.info("Attempting to delete employee with id {}", id);
 
-        repo.findById(id).ifPresentOrElse(repo::delete, () -> {
-            log.warn("Employee with id {} not found during delete", id);
-            throw new NotFoundWhileDeletingException();
-        });
+        Employee employee = repo.findById(id).orElseThrow(NotFoundWhileDeletingException::new);
+        employee.setStatus(UserStatus.DELETED);
+//        repo.findById(id).ifPresentOrElse(repo::delete, () -> {
+//            log.warn("Employee with id {} not found during delete", id);
+//            throw new NotFoundWhileDeletingException();
+//        });
     }
 
     private void validateEmployeeDoesNotExist(EmployeeEditDTO dto, Long originalId) {

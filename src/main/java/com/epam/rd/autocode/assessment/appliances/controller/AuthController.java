@@ -4,7 +4,6 @@ import com.epam.rd.autocode.assessment.appliances.exceptions.expected.EntityExis
 import com.epam.rd.autocode.assessment.appliances.model.dto.LoginUserDTO;
 import com.epam.rd.autocode.assessment.appliances.model.dto.client.ClientCreateDTO;
 import com.epam.rd.autocode.assessment.appliances.service.AuthService;
-import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -21,26 +20,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.epam.rd.autocode.assessment.appliances.controller.CommonNames.*;
+
 @Controller
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AuthController {
 
     private final AuthService service;
 
-    private static final String INDEX_PAGE = "index";
-    private static final String REDIRECT_TO_HOME = "redirect:/";
-    private static final String CREATE_DTO_ATTR = "createDto";
-    private static final String LOGIN_DTO_ATTR = "loginDto";
-
 
     // both for client and employee
     @PostMapping("/login")
-    public String login(@Valid LoginUserDTO loginUser,
+    public String login(@Valid @ModelAttribute(LOGIN_DTO) LoginUserDTO loginUser,
                         BindingResult result,
                         HttpServletResponse response,
                         Model model) {
         if (result.hasErrors()) {
-            prepareErrorModel(model, result, true, false, loginUser);
+            prepareErrorModel(model, true, false);
             return INDEX_PAGE;
         }
 
@@ -50,30 +46,29 @@ public class AuthController {
             response.addCookie(jwtCookie);
             return REDIRECT_TO_HOME;
         } catch (BadCredentialsException e) {
-            result.rejectValue("email", "error.email");
-            prepareErrorModel(model, result, true, false, loginUser);
+            result.rejectValue("password", "bad.credentials");
+            prepareErrorModel(model, true, false);
             return INDEX_PAGE;
         }
     }
 
     @PostMapping("/signup")
-    public String signupForClient(@Valid @ModelAttribute(CREATE_DTO_ATTR) ClientCreateDTO createClient,
+    public String signupForClient(@Valid @ModelAttribute(CREATE_DTO) ClientCreateDTO createClient,
                          BindingResult result,
                          Model model,
                          HttpServletResponse response) {
 
         if (result.hasErrors()) {
-            prepareErrorModel(model, result, false, true, createClient);
+            prepareErrorModel(model, false, true);
             return INDEX_PAGE;
         }
-        Cookie jwtCookie;
         try {
-            jwtCookie = service.register(createClient);
+            Cookie jwtCookie = service.register(createClient);
             response.addCookie(jwtCookie);
             return REDIRECT_TO_HOME;
         } catch (EntityExistsByEmailException e) {
-            result.rejectValue("email", "{validation.email.already-exist}"); // add error to result
-            prepareErrorModel(model, result, false, true, createClient);
+            result.rejectValue("email", "validation.email.already-exist"); // add error to result
+            prepareErrorModel(model, false, true);
             return INDEX_PAGE;
         }
     }
@@ -112,28 +107,45 @@ public class AuthController {
 
     private void prepareErrorModel(
             Model model,
-            BindingResult bindingResult,
             boolean showLogin,
-            boolean showRegister,
-            Object errorDTO) {
-
-        List<String> errors = bindingResult.getAllErrors()
-                .stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
+            boolean showRegister) {
 
         if (showLogin) {
-            model.addAttribute("loginErrors", errors);
-            model.addAttribute(LOGIN_DTO_ATTR, errorDTO);
-            model.addAttribute(CREATE_DTO_ATTR, new ClientCreateDTO());
+            model.addAttribute(CREATE_DTO, new ClientCreateDTO());
         }
 
         if (showRegister) {
-            model.addAttribute("registerErrors", errors);
-            model.addAttribute(CREATE_DTO_ATTR, errorDTO);
-            model.addAttribute(LOGIN_DTO_ATTR, new LoginUserDTO());
+            model.addAttribute(LOGIN_DTO, new LoginUserDTO());
         }
         model.addAttribute("showLoginPopup", showLogin);
         model.addAttribute("showRegisterPopup", showRegister);
     }
 }
+
+
+// private void prepareErrorModel(
+//            Model model,
+//            BindingResult bindingResult,
+//            boolean showLogin,
+//            boolean showRegister,
+//            Object errorDTO) {
+//
+//        List<String> errors = bindingResult.getAllErrors()
+//                .stream()
+//                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+//                .collect(Collectors.toList());
+//
+//        if (showLogin) {
+//            model.addAttribute("loginErrors", errors);
+//            model.addAttribute(LOGIN_DTO, errorDTO);
+//            model.addAttribute(CREATE_DTO, new ClientCreateDTO());
+//        }
+//
+//        if (showRegister) {
+//            model.addAttribute("registerErrors", errors);
+//            model.addAttribute(CREATE_DTO, errorDTO);
+//            model.addAttribute(LOGIN_DTO, new LoginUserDTO());
+//        }
+//        model.addAttribute("showLoginPopup", showLogin);
+//        model.addAttribute("showRegisterPopup", showRegister);
+//    }

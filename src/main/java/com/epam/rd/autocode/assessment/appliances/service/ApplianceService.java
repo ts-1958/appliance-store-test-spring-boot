@@ -24,7 +24,11 @@ public interface ApplianceService {
 
     List<ApplianceResponseDTO> findTop5ByDiscountGreaterThan(double v);
     List<ApplianceResponseDTO> findTop5ByOrderBySalesCountDesc();
-    Page<ApplianceResponseDTO> getAppliances(Category category, Boolean discounted, String sortField, Sort.Direction direction, Pageable pageable);
+    Page<ApplianceResponseDTO> getAppliances(String category, boolean discounted, String sortField, Pageable pageable);
 
     ApplianceEditDTO findByIdToEdit(Long id);
+
+
+    // paging
+    Page<ApplianceResponseDTO> findAllWithPagination(int page, int size);
 }

@@ -15,18 +15,21 @@
 
 <div class="container mt-4">
     <div class="card">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h2 class="mb-0" th:text=" #{general.btn.edit} + ' ' + ${employee.name}"></h2>
-        </div>
         <div class="card-body">
-
-            <form th:action="@{/internal/employees/{id}(id=${employee.id})}" th:object="${employee}" method="post">
+            <form th:action="@{/internal/employees/{id}(id=${employeeId})}" th:object="${editDTO}" method="post">
                 <input type="hidden" name="_method" value="put">
 
                 <div class="mb-3">
                     <label for="id" class="form-label" th:text="#{general.title.id}" ></label>
                     <input type="text" id="id" class="form-control" readonly
-                           th:field="*{id}" th:value="${employee.id}" />
+                           th:value="${id}" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="name" class="form-label" th:text="#{general.title.name}" ></label>
+                    <input type="text" id="name" class="form-control"
+                           th:field="*{name}" th:value="${editDTO.name}" />
+                    <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
                 </div>
 
                 <div class="mb-3">
@@ -34,6 +37,7 @@
                     <select id="role" class="form-control" th:field="*{role}">
                         <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
                     </select>
+                    <div class="text-danger" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
                 </div>
 
 
@@ -44,22 +48,16 @@
                     <div class="text-danger" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="name" class="form-label" th:text="#{general.title.name}" ></label>
-                    <input type="text" id="name" class="form-control" readonly
-                           th:field="*{name}" th:value="${employee.name}" />
-                </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label" th:text="#{general.title.email}" ></label>
                     <input type="text" id="email" class="form-control" readonly
-                           th:field="*{email}" th:value="${employee.email}" />
+                           th:field="*{email}" th:value="${editDTO.email}" />
+                    <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                 </div>
 
                 <div class="row">
-                    <div class="col-sm-9 offset-sm-3">
-                        <input type="submit" class="btn btn-primary" value="Save Changes">
-                    </div>
+                    <button type="submit" class="btn btn-primary" th:text="#{general.btn.update}" ></button>
                 </div>
             </form>
 

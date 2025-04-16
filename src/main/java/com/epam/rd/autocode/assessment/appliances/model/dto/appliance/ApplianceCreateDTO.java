@@ -14,34 +14,31 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ApplianceCreateDTO {
 
-    // todo constraint
-    Long id;
-
-    @NotBlank(message = "{validation.name.notBlank}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
     @Size(max = 30, message = "{validation.name.size}")
     private String name;
 
-    @NotNull(message = "{validation.category.invalid}")
+    @NotNull(message = "{validation.can.not.be-blank}")
     private Category category;
 
-    @NotBlank(message = "{validation.model.invalid}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
     @Size(max = 30, message = "{validation.model.invalid}")
     private String model;
 
-    @NotNull(message = "{validation.manufacturer.not.selected}")
+    @NotNull(message = "{validation.can.not.be-blank}")
     private Long manufacturerId;
 
-    @NotNull(message = "{validation.power-type.not.selected}")
+    @NotNull(message = "{validation.can.not.be-blank}")
     private PowerType powerType;
 
-    @NotBlank(message = "{validation.characteristic.not.selected}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
     private String characteristic;
     private String description;
 
-    @NotNull(message = "{validation.power.not.selected}")
+    @NotNull(message = "{validation.can.not.be-blank}")
     private Integer power;
 
-    @NotNull(message = "{validation.price.not.selected}")
+    @NotNull(message = "{validation.can.not.be-blank}")
     @DecimalMin(value = "0.00", message = "{validation.price.can-not-be.negative}")
     private BigDecimal price;
 

@@ -12,14 +12,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ClientCreateDTO {
 
-    @NotBlank(message = "{validation.name.notBlank}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
     @Size(min = 2, max = 30, message = "{validation.name.size}")
     private String name;
 
-    @NotBlank(message = "{validation.email.invalid}")
-    @Email(message = "{validation.email.invalid}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
+    @Email(message = "{validation.can.not.be-blank}")
     private String email;
 
-    @NotBlank(message = "{validation.password.invalid}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
     private String password;
 }

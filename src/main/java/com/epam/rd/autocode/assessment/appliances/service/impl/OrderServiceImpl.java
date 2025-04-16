@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -122,86 +123,41 @@ public class OrderServiceImpl implements OrderService {
                 () -> new OrderCreateException("No such client with id " + clientID + " while creating order")
         );
 
-        // create and save order
+        // create order and order rows
         Order order = Order.of(client);
+//        ArrayList<OrderRow> orderRows = new ArrayList<>();
 
-        BigDecimal calculatedPOnBackTotal = BigDecimal.ZERO;
-        ArrayList<OrderRow> orderRows = new ArrayList<>();
+        AtomicReference<BigDecimal> calculatedOnBackTotal = new AtomicReference<>(BigDecimal.ZERO);
 
-        // iteratively create and save orderRow
-        for(OrderRowCreateDTO row: dto.getOrderRowSet()){
 
-            // retrieve appliance
-            Appliance appliance = applianceRepo.findById(row.getApplianceId()).orElseThrow(
-                    () -> new OrderCreateException("No such appliance with id " + row.getApplianceId() + " while creating order")
-            );
+        List<OrderRow> orderRows = dto.getOrderRowSet().stream()
+                .map(rowDTO -> {
 
-            OrderRow orderRow = OrderRow.of(appliance, row.getNumber());
-            orderRows.add(orderRow);
+                    Appliance appliance = applianceRepo.findById(rowDTO.getApplianceId()).orElseThrow(
+                            () -> new OrderCreateException("No such appliance with id " + rowDTO.getApplianceId() + " while creating order")
+                    );
 
-            calculatedPOnBackTotal = calculatedPOnBackTotal.add(
-                    appliance.getPrice().multiply(BigDecimal.valueOf(row.getNumber()))
-            );
-        }
+                    calculatedOnBackTotal.updateAndGet(current -> current.add(
+                            appliance.getPrice().multiply(BigDecimal.valueOf(rowDTO.getNumber()))
+                    ));
 
-        System.out.println("MEEEEEEEEEEE " + orderRows.size());
+                    OrderRow orderRow = OrderRow.of(appliance, rowDTO.getNumber());
+                    orderRow.setOrder(order); // back relative
+                    return orderRow;
+                }).toList();
 
-        System.out.println("******************");
-        System.out.println("calculatedPOnBackTotal " + calculatedPOnBackTotal);
-        System.out.println("getCalculatedOnFrontTotal " + dto.getCalculatedOnFrontTotal());
-        System.out.println("******************");
 
         order.setOrderRowSet(orderRows);
-        if (calculatedPOnBackTotal.compareTo(dto.getCalculatedOnFrontTotal()) != 0){
+        if (calculatedOnBackTotal.get().compareTo(dto.getCalculatedOnFrontTotal()) != 0){
             // todo say about price changed. Try again
             throw new OrderCreateException("price changed");
         } else {
+            order.setPriceAtPurchase(calculatedOnBackTotal.get());
             Order saved = repo.save(order);
             log.info("Order created successfully by client with id {}", clientID);
             return mapper.toResponseDTO(saved);
         }
     }
-
-
-    /** old impl of create
-
-
-
-    public OrderResponseDTO create(OrderCreateDTO dto, Long clientID) {
-        log.info("Attempt to create order by client with id {}", clientID);
-
-        // retrieve client
-        Client client = clientRepo.findById(clientID).orElseThrow(EntityNotFoundException::new);
-
-        // create and save order
-        Order order = new Order();
-        order.setClient(client);
-        order.setApproved(false);
-        order.setStatus(OrderStatus.PENDING);
-        order = repo.save(order);
-
-        // iteratively create and save orderRow
-        Set<OrderRow> orderRows = new HashSet<>();
-        for(CreateOrderRowDTO row: createDTO.getOrderRowSet()){
-
-            // retrieve appliance
-            Appliance appliance = applianceRepo.findById(row.getApplianceId()).orElseThrow(EntityNotFoundException::new);
-
-            OrderRow orderRow = new OrderRow();
-            orderRow.setAmount(appliance.getPrice().multiply(BigDecimal.valueOf(row.getNumber())));
-            orderRow.setNumber(row.getNumber());
-            orderRow.setAppliance(appliance);
-            orderRow.setOrder(order);
-
-            orderRow = orderRowRepo.save(orderRow);
-            orderRows.add(orderRow);
-        }
-
-        order.setOrderRowSet(orderRows);
-        repo.save(order);
-        log.info("Order created successfully by client with id {}", clientID);
-    }
-     */
 
     @Override
     public List<OrderResponseDTO> findAll(int page, int size) {
@@ -215,9 +171,10 @@ public class OrderServiceImpl implements OrderService {
         log.info("Attempt to delete order by id {}", id);
 
         Order order = repo.findById(id).orElseThrow(NotFoundWhileDeletingException::new);
-        orderRowRepo.deleteAll(order.getOrderRowSet());
-
-        repo.deleteById(id);
+        order.setStatus(OrderStatus.CANCELLED_BY_EMPLOYEE);
+//        orderRowRepo.deleteAll(order.getOrderRowSet());
+//        repo.deleteById(id);
+        repo.save(order);
     }
 
     @Override

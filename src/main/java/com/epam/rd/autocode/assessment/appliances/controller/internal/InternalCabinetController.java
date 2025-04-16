@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.epam.rd.autocode.assessment.appliances.controller.CommonNames.*;
+
 @Controller
 @RequestMapping("/internal/cabinet")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -26,15 +28,6 @@ public class InternalCabinetController {
     private final EmployeeService employeeService;
     private final OrderService orderService;
 
-    private static final String REDIRECT_TO_CABINET = "redirect:/internal/cabinet";
-    private static final String CABINET_PAGE = "employee/cabinet";
-    private static final String EDIT_BY_EMPLOYEE_PAGE = "employee/edit-by-employee";
-//    private static final String EDIT_BY_ADMIN_PAGE= "employee/edit-by-employee";
-    private static final String EMPLOYEE_RESPONSE_ATTR = "employeeResponse";
-    private static final String EMPLOYEE_EDIT_ATTR = "employeeEdit";
-    private static final String ORDERS_LIST_ATTR = "ordersList";
-
-
 
     @GetMapping
     public String getEmployeeCabinet(Model model, Authentication authentication) {
@@ -42,9 +35,9 @@ public class InternalCabinetController {
         EmployeeResponseDTO employee = employeeService.findById(employeeID);
         List<OrderResponseDTO> orders = orderService.findByEmployeeId(employeeID);
 
-        model.addAttribute(EMPLOYEE_RESPONSE_ATTR, employee);
-        model.addAttribute(ORDERS_LIST_ATTR, orders);
-        return CABINET_PAGE;
+        model.addAttribute(RESPONSE_DTO, employee);
+        model.addAttribute(ORDERS, orders);
+        return EMPLOYEE_CABINET_PAGE;
     }
 
     @GetMapping("/edit")
@@ -52,18 +45,18 @@ public class InternalCabinetController {
         Long employeeID = Long.parseLong(authentication.getPrincipal().toString());
 
         EmployeeEditDTO dto = employeeService.findByIdToEdit(employeeID);
-        model.addAttribute(EMPLOYEE_EDIT_ATTR, dto);
+        model.addAttribute(EDIT_DTO, dto);
 
-        return EDIT_BY_EMPLOYEE_PAGE;
+        return EMPLOYEE_EDIT_PAGE;
     }
 
     @PutMapping
-    public String processEdit(@Valid @ModelAttribute(EMPLOYEE_EDIT_ATTR) EmployeeEditDTO employee,
+    public String processEdit(@Valid @ModelAttribute(EDIT_DTO) EmployeeEditDTO employee,
                               BindingResult result,
                               Authentication authentication) {
 
         if (result.hasErrors()) {
-            return EDIT_BY_EMPLOYEE_PAGE;
+            return EMPLOYEE_EDIT_HIMSELF_PAGE;
         }
 
         long employeeID = Long.parseLong(authentication.getPrincipal().toString());
@@ -73,7 +66,7 @@ public class InternalCabinetController {
             return REDIRECT_TO_CABINET;
         } catch (EntityExistsByEmailException e) {
             result.rejectValue("email", "validation.email.already-exist");
-            return EDIT_BY_EMPLOYEE_PAGE;
+            return EMPLOYEE_EDIT_HIMSELF_PAGE;
         }
     }
 

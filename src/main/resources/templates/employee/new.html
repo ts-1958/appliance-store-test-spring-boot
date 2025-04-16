@@ -13,23 +13,23 @@
 <div class="container">
     <h2>Create New Employee</h2>
 
-    <form th:action="@{/internal/employees}" th:object="${employee}" method="post">
+    <form th:action="@{/internal/employees}" th:object="${createDTO}" method="post">
 
         <div class="mb-3">
             <label for="name" class="form-label" th:text="#{general.title.name}" ></label>
-            <input type="text" id="name" class="form-control" th:field="*{name}" required />
+            <input type="text" id="name" class="form-control" th:field="*{name}" />
             <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
         </div>
 
         <div class="mb-3">
             <label for="email" class="form-label" th:text="#{general.title.email}" ></label>
-            <input type="text" id="email" class="form-control" th:field="*{email}" required />
+            <input type="text" id="email" class="form-control" th:field="*{email}" />
             <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
         </div>
 
         <div class="mb-3">
             <label for="department" class="form-label" th:text="#{object.employee.department}" ></label>
-            <input list="departmentsList" id="department" name="department" class="form-control" th:field="*{department}" required />
+            <input list="departmentsList" id="department" name="department" class="form-control" th:field="*{department}" />
             <datalist id="departmentsList">
                 <option th:each="d : ${departments}" th:value="${d}"></option>
             </datalist>

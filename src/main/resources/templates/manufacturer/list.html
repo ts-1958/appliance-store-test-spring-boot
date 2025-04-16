@@ -13,7 +13,9 @@
 <div class="container">
     <h1 class="mt-4" th:text="#{manufacturer.header.list}" ></h1>
 
-    <a th:href="@{/internal/manufacturers/new}" class="btn btn-primary mb-2" th:text="#{manufacturer.btn.new}"></a>
+    <a th:href="@{/internal/manufacturers/new}" class="btn btn-primary mb-2" th:text="#{general.btn.add}"></a>
+    <a th:href="@{/internal/manufacturers/deleted}" class="btn btn-info mb-2" th:text="#{general.btn.deleted-items}" ></a>
+
 
     <table class="table table-bordered">
         <thead>
@@ -29,12 +31,12 @@
         <tr th:each="manufacturer: ${manufacturers}">
             <td th:text="${manufacturer.id}"/>
             <td th:text="${manufacturer.name}"/>
-            <td th:text="'+' +  ${manufacturer.phoneNumber}"/>
+            <td th:text="'+' + ${manufacturer.phoneNumber}"/>
             <td th:text="${manufacturer.description}"/>
             <td>
                 <div>
-                    <a th:href="@{'/internal/manufacturers/' + ${manufacturer.id}}">
-                        <i class="bi"></i> <span th:text="#{general.btn.about}" ></span>
+                    <a th:href="@{'/internal/manufacturers/' + ${manufacturer.id}}" class="btn btn-info">
+                        <i class="bi"></i> <span th:text="#{general.btn.edit}" ></span>
                     </a>
                 </div>
             </td>
@@ -42,38 +44,13 @@
         </tbody>
     </table>
 
-<!--    pagination-->
-    <div class="row">
-        <div class="col">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    <!-- Кнопка "Назад" -->
-                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link" th:href="@{/internal/manufacturers(page=${currentPage - 1}, size=10)}"
-                           aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-
-                    <!-- Номера страниц -->
-                    <li th:each="page : ${#numbers.sequence(0, totalPages - 1)}"
-                        class="page-item" th:classappend="${currentPage == page} ? 'active'">
-                        <a class="page-link" th:href="@{/internal/manufacturers(page=${page}, size=10)}"
-                           th:text="${page + 1}">1</a>
-                    </li>
-
-                    <!-- Кнопка "Вперед" -->
-                    <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
-                        <a class="page-link" th:href="@{/internal/manufacturers(page=${currentPage + 1}, size=10)}"
-                           aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+    <div th:replace="~{
+    fragments/pagination :: pagination(path='/internal/manufacturers',
+    currentPage=${currentPage},
+    currentSize=${currentSize},
+    totalPages=${totalPages})
+    }">
     </div>
-
     <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

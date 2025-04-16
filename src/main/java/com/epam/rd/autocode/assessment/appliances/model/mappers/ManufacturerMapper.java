@@ -19,17 +19,4 @@ public interface ManufacturerMapper {
 
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(ManufacturerDTO dto, @MappingTarget Manufacturer manufacturer);
-
-    @AfterMapping
-    default void normalizePhone(@MappingTarget Manufacturer target) {
-        if (target != null) {
-            target.setPhoneNumber(target.getPhoneNumber().replaceAll("[^0-9]", ""));
-        }
-    }
-
-    default void normalizePhone(ManufacturerDTO dto) {
-        if (dto != null) {
-            dto.setPhoneNumber(dto.getPhoneNumber().replaceAll("[^0-9]", ""));
-        }
-    }
 }

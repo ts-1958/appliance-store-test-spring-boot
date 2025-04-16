@@ -13,25 +13,26 @@
 <div th:insert="~{menunavy::futher-nav(isEmployee=${true})}"></div>
 
 <h1 th:text="#{employee.header.list}"></h1>
+<a th:href="@{employees/new}" class="btn btn-primary m-2" th:text="#{employee.btn.new}"></a>
 
 <table class="table table-hover">
     <thead>
     <tr class="table-dark">
-        <th th:text="#{object.user.id}"></th>
-        <th th:text="#{object.user.name}"></th>
-        <th th:text="#{object.user.email}"></th>
+        <th th:text="#{general.title.id}"></th>
+        <th th:text="#{general.title.name}"></th>
+        <th th:text="#{general.title.email}"></th>
         <th th:text="#{object.employee.department}"></th>
-        <th th:text="#{object.employee.active}"></th>
-        <th>Edit</th>
+        <th th:text="#{general.title.status}"></th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
         <tr th:each="employee: ${employees}">
-            <td th:text="${employee.id}"/>
+            <td th:text="'#'+${employee.id}"/>
             <td th:text="${employee.name}"/>
             <td th:text="${employee.email}"/>
             <td th:text="${employee.department}"/>
-            <td th:text="${employee.approved}"/>
+            <td th:text="${employee.status}"/>
             <td>
                 <div>
                     <a th:href="@{'/internal/employees/' + ${employee.id}}"
@@ -44,7 +45,6 @@
 
     </tbody>
 </table>
-<a th:href="@{employees/new}" class="btn btn-primary" th:text="#{employee.btn.new}"></a>
 <div th:insert="~{footer::footer}"></div>
 </body>
 </html>

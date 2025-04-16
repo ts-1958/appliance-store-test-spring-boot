@@ -6,97 +6,127 @@ import com.epam.rd.autocode.assessment.appliances.model.dto.appliance.ApplianceR
 import com.epam.rd.autocode.assessment.appliances.model.dto.manufacturer.ManufacturerDTO;
 import com.epam.rd.autocode.assessment.appliances.model.enums.Category;
 import com.epam.rd.autocode.assessment.appliances.model.enums.PowerType;
+import com.epam.rd.autocode.assessment.appliances.model.mappers.ApplianceMapper;
 import com.epam.rd.autocode.assessment.appliances.service.ApplianceService;
 import com.epam.rd.autocode.assessment.appliances.service.ManufacturerService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.epam.rd.autocode.assessment.appliances.controller.CommonNames.*;
 
 @Controller
 @RequestMapping("/internal/appliances")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class InternalApplianceController {
 
-    private final ApplianceService service;
+    private final ApplianceService applianceService;
     private final ManufacturerService manufacturerService;
+    private final ApplianceMapper mapper = ApplianceMapper.INSTANCE;
 
-    // employee want to see all appliances
+//    private static final String APPLIANCES_LIST_ATTR = "appliancesList";
+//    private static final String APPLIANCES_FOR_EMPLOYEE_PAGE = "appliance/appliances-for-employee";
+//    private static final String REDIRECT_TO_CABINET = "redirect:/cabinet";
+//    private static final String CLIENT_RESPONSE_ATTR = "clientResponse";
+//    private static final String CLIENT_EDIT_ATTR = "clientEdit";
+//    private static final String ORDERS_LIST_ATTR = "ordersList";
+//    private static final String EDIT_PAGE = "appliances";
+
+//    without paging
+//    @GetMapping
+//    public String getAllAppliances(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "20") int size,
+//            Model model) {
+//
+//        List<ApplianceResponseDTO> all = applianceService.findAll(page, size);
+//        model.addAttribute(APPLIANCES, all);
+//        return APPLIANCES_FOR_EMPLOYEE_PAGE;
+//    }
+
     @GetMapping
-    public String getAllAppliances(Model model) {
-        List<ApplianceResponseDTO> all = service.findAll(0, 100);
-        model.addAttribute("appliances", all);
-        return "appliance/appliances-for-employee";
+    public String getAllAppliances(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+
+        Page<ApplianceResponseDTO> appliancesPage = applianceService.findAllWithPagination(page, size);
+        model.addAttribute(APPLIANCES, appliancesPage.getContent());
+        model.addAttribute(CURRENT_PAGE, page);
+        model.addAttribute(CURRENT_SIZE, size);
+        model.addAttribute(TOTAL_ITEMS, appliancesPage.getTotalElements());
+        model.addAttribute(TOTAL_PAGES, appliancesPage.getTotalPages());
+
+        return APPLIANCES_FOR_EMPLOYEE_PAGE;
     }
 
-    // employee want to see add-appliances page
     @GetMapping("/new")
-    public String showForm(Model model) {
-        List<ManufacturerDTO> manufacturers = manufacturerService.findAll();
-        model.addAttribute("createDTO", new ApplianceCreateDTO());
-        model.addAttribute("manufacturers", manufacturers);
-        model.addAttribute("categories", Category.values());
-        model.addAttribute("powerTypes", PowerType.values());
-        return "appliance/newAppliance";
+    public String showCreateForm(Model model) {
+        List<ManufacturerDTO> manufacturers = manufacturerService.findAllActive(0, 100).getContent();
+        model.addAttribute(CREATE_DTO, new ApplianceCreateDTO());
+        model.addAttribute(MANUFACTURERS, manufacturers);
+        model.addAttribute(CATEGORIES, Category.values());
+        model.addAttribute(POWER_TYPES, PowerType.values());
+        return APPLIANCE_NEW_PAGE;
     }
 
-    // employee send dto to create new appliance
     @PostMapping
-    public String processForm(@Valid @ModelAttribute(name = "createDTO") ApplianceCreateDTO dto,
+    public String createAppliance(@Valid @ModelAttribute(CREATE_DTO) ApplianceCreateDTO dto,
                               BindingResult bindingResult, Model model) {
 
-        List<ManufacturerDTO> manufacturers = manufacturerService.findAll();
-
-        model.addAttribute("manufacturers", manufacturers);
-        model.addAttribute("categories", Category.values());
-        model.addAttribute("powerTypes", PowerType.values());
+        List<ManufacturerDTO> manufacturers = manufacturerService.findAllActive(0, 100).getContent();
+        model.addAttribute(MANUFACTURERS, manufacturers);
+        model.addAttribute(CATEGORIES, Category.values());
+        model.addAttribute(POWER_TYPES, PowerType.values());
 
         if (bindingResult.hasErrors()) {
-
-            System.out.println("Has some errors");
-            System.out.println(bindingResult.getAllErrors());
-
-            return "appliance/newAppliance";
+            return APPLIANCE_NEW_PAGE;
         }
         try {
-            service.create(dto);
-            return "redirect:/internal/appliances";
+            applianceService.create(dto);
+            // todo add success pop-up
+            return REDIRECT_TO_APPLIANCES_FOR_EMPLOYEE;
         } catch (EntityNotFoundException e) {
-            bindingResult.rejectValue("manufacturerId", "manufacturer.not.exist", e.getMessage());
-            return "appliance/newAppliance";
+            bindingResult.rejectValue("manufacturerId", "manufacturer.not.exist");
+            return APPLIANCE_NEW_PAGE;
         }
     }
 
-    // employee want to see edit-appliances page
     @GetMapping("/{id}/edit")
-    public String editAppliance(@PathVariable("id") Long applianceID, Model model) {
-        ApplianceEditDTO dto = service.findByIdToEdit(applianceID);
+    public String showEditForm(@PathVariable("id") Long applianceID, Model model) {
 
-        model.addAttribute("editAppliance", dto);
-        model.addAttribute("categories", Category.values());
-        model.addAttribute("powerTypes", PowerType.values());
-        return "appliance/editAppliance";
+        ApplianceResponseDTO appliance = applianceService.findById(applianceID);
+        ApplianceEditDTO dto = mapper.toEditDTO(appliance);
+
+        model.addAttribute(EDIT_DTO, dto);
+        model.addAttribute(RESPONSE_DTO, appliance);
+        model.addAttribute(CATEGORIES, Category.values());
+        model.addAttribute(POWER_TYPES, PowerType.values());
+        return APPLIANCE_EDIT_PAGE;
     }
 
-    // employee send edited data to update appliance
     @PutMapping("/{id}/edit")
-    public String updateAppliance(@Valid @ModelAttribute(name = "edit_appliance") ApplianceEditDTO dto,
-                                  @PathVariable("id") Long applianceId,
-                                  BindingResult bindingResult, Model model) {
+    public String updateAppliance(@Valid @ModelAttribute(EDIT_DTO) ApplianceEditDTO dto,
+                                  BindingResult bindingResult,
+                                  @PathVariable("id") Long applianceId, Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("powerTypes", PowerType.values());
-            return "appliance/editAppliance";
+            ApplianceResponseDTO fullAppliance = applianceService.findById(applianceId);
+            model.addAttribute(RESPONSE_DTO, fullAppliance);
+            model.addAttribute(POWER_TYPES, PowerType.values());
+            return APPLIANCE_EDIT_PAGE;
         }
-        service.update(applianceId, dto);
-        return "redirect:/internal/appliances";
+        applianceService.update(applianceId, dto);
+        return REDIRECT_TO_APPLIANCES_FOR_EMPLOYEE;
     }
 }
 

@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.epam.rd.autocode.assessment.appliances.controller.CommonNames.*;
+
 @Service
 @Slf4j
 public class ApplianceServiceImpl implements ApplianceService {
@@ -126,40 +128,65 @@ public class ApplianceServiceImpl implements ApplianceService {
 
     @Override
     public Page<ApplianceResponseDTO> getAppliances(
-            Category category,
-            Boolean discounted,
+            String category,
+            boolean discounted,
             String sortField,
-            Sort.Direction direction,
             Pageable pageable) {
 
         Specification<Appliance> spec = Specification.where(null);
 
-        if (category != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("category"), category));
+        if (category != null && !category.isEmpty()) {
+            spec = spec.and((root,
+                             query,
+                             cb)
+                    -> cb.equal(root.get("category"), Category.valueOf(category)));
+        }
+        if (discounted) {
+            spec = spec.and((root,
+                             query,
+                             cb)
+                    -> cb.gt(root.get("discount"), BigDecimal.ZERO));
         }
 
-        if (discounted != null) {
-            if (discounted) {
-                spec = spec.and((root, query, cb) -> cb.gt(root.get("discount"), BigDecimal.ZERO));
-            } else {
-                spec = spec.and((root, query, cb) -> cb.equal(root.get("discount"), BigDecimal.ZERO));
-            }
-        }
-
-        Pageable sortedPageable = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                Sort.by(direction, sortField)
-        );
+        Pageable sortedPageable = createSortedPageable(pageable, sortField);
 
         return repo.findAll(spec, sortedPageable)
                 .map(mapper::toResponseDTO);
     }
 
+
+    private Pageable createSortedPageable(Pageable pageable, String sortField) {
+        if (sortField == null || sortField.isBlank()) {
+            return pageable;
+        }
+        Sort sort = resolveSort(sortField);
+        return sort != null
+                ? PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort)
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+    }
+
+    private Sort resolveSort(String sortField) {
+        return switch (sortField) {
+            case EXPENSIVE -> Sort.by("price").descending();
+            case CHEAP -> Sort.by("price").ascending();
+            case POWER -> Sort.by("power").descending();
+            default -> null;
+        };
+    }
+
+
+
     @Override
     public ApplianceEditDTO findByIdToEdit(Long id) {
         return repo.findById(id).map(mapper::toEditDTO).orElseThrow(EntityNotFoundException::new);
     }
+
+    @Override
+    public Page<ApplianceResponseDTO> findAllWithPagination(int page, int size) {
+        Page<Appliance> retVal = repo.findAll(PageRequest.of(page, size));
+        return retVal.map(mapper::toResponseDTO);
+    }
+
 
 //    @Override
 //    public ApplianceResponseDTO update(ApplianceResponseDTO dto) {

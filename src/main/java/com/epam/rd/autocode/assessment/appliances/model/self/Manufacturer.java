@@ -22,4 +22,13 @@ public class Manufacturer {
     private String phoneNumber;
     @Column(nullable = false)
     private String description;
+
+    private boolean deleted;
+
+    public Manufacturer(Long id, String name, String phoneNumber, String description) {
+        this.id = id;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.description = description;
+    }
 }

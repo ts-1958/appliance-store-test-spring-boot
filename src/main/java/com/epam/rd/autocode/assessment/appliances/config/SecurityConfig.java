@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,8 +24,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtTrackFilter jwtTrackFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers(header->header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/signup", "/error/**", "/product.jpg", "/password-reset/**").permitAll()
+                        .requestMatchers("/", "/login", "/signup", "/error/**",
+                                "/product.jpg", "/password-reset/**", "/h2-console/**").permitAll()
                         .requestMatchers("/cabinet/**", "/appliances/**").hasRole(Role.CLIENT.name())
                         .requestMatchers("/internal/manufacturers/**", "/internal/employees/**").hasRole(Role.ADMIN.name())
                         .requestMatchers("/internal/**").hasAnyRole(Role.MANAGER.name(), Role.ADMIN.name())

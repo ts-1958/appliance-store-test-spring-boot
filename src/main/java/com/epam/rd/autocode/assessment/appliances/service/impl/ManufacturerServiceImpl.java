@@ -8,12 +8,14 @@ import com.epam.rd.autocode.assessment.appliances.model.dto.manufacturer.Manufac
 import com.epam.rd.autocode.assessment.appliances.model.mappers.ManufacturerMapper;
 import com.epam.rd.autocode.assessment.appliances.model.self.Manufacturer;
 import com.epam.rd.autocode.assessment.appliances.repository.ManufacturerRepository;
+import com.epam.rd.autocode.assessment.appliances.repository.ManufacturerSpec;
 import com.epam.rd.autocode.assessment.appliances.service.ManufacturerService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -31,27 +33,18 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     private final ManufacturerMapper mapper = ManufacturerMapper.INSTANCE;
 
     @Override
-    public Page<ManufacturerDTO> findAll(Pageable pageable) {
-        return repo.findAll(pageable).map(mapper::toDTO);
+    public Page<ManufacturerDTO> findAllActive(int page, int size) {
+        return repo.findAll(ManufacturerSpec.isNotDeleted(), PageRequest.of(page, size)).map(mapper::toDTO);
     }
 
     @Override
-    public List<ManufacturerDTO> findAll() {
-        return repo.findAll().stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
+    public List<ManufacturerDTO> findAllDeleted() {
+        return repo.findAll(ManufacturerSpec.isDeleted()).stream().map(mapper::toDTO).toList();
     }
 
     @Override
     public ManufacturerDTO findById(Long id) {
         return repo.findById(id)
-                .map(mapper::toDTO)
-                .orElseThrow(EntityNotFoundException::new);
-    }
-
-    @Override
-    public ManufacturerDTO findByName(String name) {
-        return repo.findByName(name)
                 .map(mapper::toDTO)
                 .orElseThrow(EntityNotFoundException::new);
     }
@@ -70,7 +63,6 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     @Override
     public ManufacturerDTO update(Long id, ManufacturerDTO dto) {
         log.info("Updating manufacturer with ID: {}", id);
-        mapper.normalizePhone(dto);
         Manufacturer manufacturer = repo.findById(id)
                 .orElseThrow(NotFoundWhileUpdatingException::new);
         validateManufacturerDoesNotExistForUpdate(manufacturer, dto);
@@ -104,14 +96,20 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         log.info("Deleting manufacturer with ID: {}", id);
 
-        if (!repo.existsById(id)) {
-            log.warn("Delete failed: manufacturer with ID {} not found", id);
-            throw new NotFoundWhileDeletingException();
-        }
-        repo.deleteById(id);
+        Manufacturer manufacturer = repo.findById(id).orElseThrow(EntityNotFoundException::new);
+        manufacturer.setDeleted(true);
+
         log.info("Manufacturer with ID {} deleted successfully", id);
+
+//        if (!repo.existsById(id)) {
+//            log.warn("Delete failed: manufacturer with ID {} not found", id);
+//            throw new NotFoundWhileDeletingException();
+//        }
+//        repo.deleteById(id);
+//        log.info("Manufacturer with ID {} deleted successfully", id);
     }
 }

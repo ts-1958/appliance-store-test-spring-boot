@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.epam.rd.autocode.assessment.appliances.controller.CommonNames.*;
+
 @Controller
 @RequestMapping("/cabinet")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -25,47 +27,35 @@ public class CabinetController {
     private final ClientService clientService;
     private final OrderService orderService;
 
-    private static final String REDIRECT_TO_CABINET = "redirect:/cabinet";
-    private static final String CLIENT_RESPONSE_ATTR = "clientResponse";
-    private static final String CLIENT_EDIT_ATTR = "clientEdit";
-    private static final String ORDERS_LIST_ATTR = "ordersList";
-    private static final String EDIT_PAGE = "client/edit";
-    private static final String CABINET_PAGE = "client/cabinet";
-
-
-    // client want to see his cabinet
     @GetMapping
-    public String getClientCabinet(Model model, Authentication authentication) {
+    public String getClientCabinet(@RequestParam(name = "isCreated", required = false) boolean isCreated,
+                                   Model model, Authentication authentication) {
 
         Long clientID = Long.parseLong(authentication.getPrincipal().toString());
         ClientResponseDTO clientDTO = clientService.findById(clientID);
         List<OrderResponseDTO> orders = orderService.findByClientId(clientID);
-        System.out.println("=====================");
-        orders.forEach(System.out::println);
-        System.out.println("=====================");
 
-        model.addAttribute(CLIENT_RESPONSE_ATTR, clientDTO);
-        model.addAttribute(ORDERS_LIST_ATTR, orders);
-        return CABINET_PAGE;
+        model.addAttribute(FLASH_ATTR_ORDER_CREATED, isCreated);
+        model.addAttribute(RESPONSE_DTO, clientDTO);
+        model.addAttribute(ORDERS, orders);
+        return CLIENT_CABINET_PAGE;
     }
 
-    // client want to see edit page, to edit his data (like name)
     @GetMapping("/edit")
     public String getPageForEditClient(Model model, Authentication authentication) {
         Long clientID = Long.parseLong(authentication.getPrincipal().toString());
         ClientEditDTO toEditDTO = clientService.findByIdToEdit(clientID);
-        model.addAttribute(CLIENT_EDIT_ATTR, toEditDTO);
-        return EDIT_PAGE;
+        model.addAttribute(EDIT_DTO, toEditDTO);
+        return CLIENT_EDIT_PAGE;
     }
 
-    // client send edited data to save it in DB
     @PutMapping
-    public String processEditClient(@Valid @ModelAttribute(CLIENT_EDIT_ATTR) ClientEditDTO client,
+    public String processEditClient(@Valid @ModelAttribute(EDIT_DTO) ClientEditDTO client,
                              BindingResult bindingResult,
                              Authentication authentication) {
 
         if(bindingResult.hasErrors()) {
-            return EDIT_PAGE;
+            return CLIENT_EDIT_PAGE;
         }
         long clientID = Long.parseLong(authentication.getPrincipal().toString());
 
@@ -73,7 +63,7 @@ public class CabinetController {
             clientService.update(clientID, client);
         } catch (EntityExistsByEmailException e) {
             bindingResult.rejectValue("email", "validation.email.already-exist");
-            return EDIT_PAGE;
+            return CLIENT_EDIT_PAGE;
         }
 
         return REDIRECT_TO_CABINET;

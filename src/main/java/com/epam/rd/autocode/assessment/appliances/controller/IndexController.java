@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
+import static com.epam.rd.autocode.assessment.appliances.controller.CommonNames.*;
+
 @Controller
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class IndexController {
@@ -21,9 +23,6 @@ public class IndexController {
     private final ApplianceService applianceService;
     private static final String INDEX_PAGE = "index";
 
-    private static final String CREATE_DTO_ATTR = "createDto";
-    private static final String LOGIN_DTO_ATTR = "loginDto";
-    private static final String ROLE_ATTR = "role";
     private static final String DISCOUNT_APPLIANCES_ATTR = "discountedAppliances";
     private static final String POPULAR_APPLIANCES_ATTR = "mostPopularAppliances";
 
@@ -43,8 +42,8 @@ public class IndexController {
                 return INDEX_PAGE;
             }
         } else {
-            model.addAttribute(CREATE_DTO_ATTR, new ClientCreateDTO());
-            model.addAttribute(LOGIN_DTO_ATTR, new LoginUserDTO());
+            model.addAttribute(CREATE_DTO, new ClientCreateDTO());
+            model.addAttribute(LOGIN_DTO, new LoginUserDTO());
         }
 
         addApplianceAttributes(model);

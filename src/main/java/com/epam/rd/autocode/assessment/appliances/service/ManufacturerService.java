@@ -8,10 +8,9 @@ import java.util.List;
 
 public interface ManufacturerService {
     ManufacturerDTO create(ManufacturerDTO createDTO);
-    Page<ManufacturerDTO> findAll(Pageable pageable);
-    List<ManufacturerDTO> findAll();
+    Page<ManufacturerDTO> findAllActive(int page, int size);
+    List<ManufacturerDTO> findAllDeleted();
     ManufacturerDTO findById(Long id);
-    ManufacturerDTO findByName(String name);
     void deleteById(Long id);
     ManufacturerDTO update(Long id, ManufacturerDTO dto);
 }

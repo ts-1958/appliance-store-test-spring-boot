@@ -12,7 +12,7 @@
 
 <h1 th:text="#{manufacturer.btn.new}"></h1>
 
-<form th:action="@{/internal/manufacturers}" th:object="${createDto}" method="post">
+<form th:action="@{/internal/manufacturers}" th:object="${createDTO}" method="post">
 
     <div class="mb-3">
         <label class="form-label" th:text="#{general.title.name}"></label>
@@ -29,7 +29,7 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label" th:text="#{object.manufacturer.description}"></label>
+        <label class="form-label" th:text="#{general.title.description}"></label>
         <input class="form-control" th:field="*{description}"
                th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'">
         <div class="invalid-feedback" th:errors="*{description}"></div>
@@ -40,7 +40,6 @@
 
     <div class="btn-group">
         <button type="submit" class="btn btn-primary" th:text="#{general.btn.save}" ></button>
-        <button type="reset" class="btn btn-secondary" th:text="#{general.btn.cancel}" ></button>
     </div>
 </form>
 

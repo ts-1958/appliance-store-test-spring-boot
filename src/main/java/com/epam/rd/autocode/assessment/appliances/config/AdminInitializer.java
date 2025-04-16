@@ -1,6 +1,7 @@
 package com.epam.rd.autocode.assessment.appliances.config;
 
 import com.epam.rd.autocode.assessment.appliances.model.enums.Role;
+import com.epam.rd.autocode.assessment.appliances.model.enums.UserStatus;
 import com.epam.rd.autocode.assessment.appliances.model.self.Employee;
 import com.epam.rd.autocode.assessment.appliances.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class AdminInitializer implements CommandLineRunner {
         admin.setDepartment("DIRECTOR");
         admin.setPassword(encoder.encode(pass));
         admin.setRole(Role.ADMIN);
+        admin.setStatus(UserStatus.ACTIVE);
 
         try {
             employeeRepository.save(admin);

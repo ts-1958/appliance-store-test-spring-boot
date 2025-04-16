@@ -13,14 +13,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EmployeeCreateDTO {
 
-    @NotBlank(message = "{validation.name.notBlank}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
     @Size(max = 30, message = "{validation.name.size}")
     private String name;
 
-    @NotBlank(message = "{validation.email.invalid}")
-    @Email(message = "{validation.email.invalid}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
+    @Email(message = "{validation.can.not.be-blank}")
     private String email;
 
-    @NotBlank(message = "{validation.department.invalid}")
+    @NotBlank(message = "{validation.can.not.be-blank}")
     private String department;
 }

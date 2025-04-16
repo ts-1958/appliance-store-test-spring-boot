@@ -18,7 +18,7 @@
         </div>
         <div class="card-body">
 
-            <form th:action="@{/internal/cabinet}" th:object="${employeeEdit}" method="post">
+            <form th:action="@{/internal/cabinet}" th:object="${editDTO}" method="post">
                 <input type="hidden" name="_method" value="put">
 
                 <div class="mb-3">
